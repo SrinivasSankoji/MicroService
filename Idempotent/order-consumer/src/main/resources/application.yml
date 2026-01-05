@@ -1,0 +1,41 @@
+server:
+  port: 8082
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: bhaumik@23
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: order-consumer-group
+      enable-auto-commit: false
+      auto-offset-reset: earliest
+      properties:
+        # IMPORTANT for Kafka transactions: consumer reads only committed records
+        isolation.level: read_committed
+
+        # ErrorHandlingDeserializer wraps the real deserializers
+        key.deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+        value.deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+
+        # Delegate deserializers
+        spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
+
+        # Target DTO type (MUST be the exact fully-qualified class name)
+        spring.json.value.default.type: com.idempotency.kafka.dto.OrderRequestEventDTO
+
+        # Allow only DTO package(s) for safety
+        spring.json.trusted.packages: com.idempotency.kafka.dto
+
+app:
+  topics:
+    requests: order-requests
+    processed: order-processed
