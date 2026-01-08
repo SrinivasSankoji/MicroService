@@ -26,6 +26,14 @@ public class KafkaProducerConfiguration {
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrap);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JacksonJsonSerializer.class);
+        /* Reliability */
+        props.put(ProducerConfig.ACKS_CONFIG, "all");
+        props.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
+        props.put(ProducerConfig.RETRIES_CONFIG, Integer.MAX_VALUE);
+        /* Batching */
+        props.put(ProducerConfig.BATCH_SIZE_CONFIG, 32768);   // 32 KB
+        props.put(ProducerConfig.LINGER_MS_CONFIG, 5);        // wait up to 5 ms
+        props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "lz4");
         return new DefaultKafkaProducerFactory<>(props);
     }
 
